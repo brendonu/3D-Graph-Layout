@@ -41,7 +41,7 @@ def generateJSFile():
         f.write("\tconst points = []\n")
 
         pointindicator = False
-        with open("C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\OneLineVTK3.vtk", encoding="utf8") as g:
+        with open("./OneLineVTK3.vtk", encoding="utf8") as g:
             counter = 0
             for line in g:
 
@@ -72,7 +72,7 @@ def generateJSFile():
         f.write("\tscene.add(meshprime)\n\n\n")
 
         counter = 1
-        with open("C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\GeneratedPoints3.txt", encoding="utf8") as h:
+        with open("./GeneratedPoints3.txt", encoding="utf8") as h:
             for line in h:
                 lineList = line.split()
                 f.write("\tconst geometry" + str(counter) + " = new THREE.SphereGeometry(0.02);\n")
@@ -137,7 +137,7 @@ def generateJSFile():
                 adjList = ""
                 citedList = ""
                 citesList = ""
-                with open("C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\TrueAdjacencyList.txt", encoding="utf8") as b:
+                with open("./TrueAdjacencyList.txt", encoding="utf8") as b:
                     targetNode = lineList[3]
                     print(targetNode)
                     for line in b:

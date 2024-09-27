@@ -21,7 +21,7 @@ def parseBibtexEntry():
     #dictionary for single entry
     articleDict = {}
 
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\gyrorecs.bib', encoding="utf8") as f:
+    with open('./gyrorecs.bib', encoding="utf8") as f:
         
         #Indicators for what is being entered/updated right now.
         pubType = ""
@@ -184,7 +184,7 @@ def parseBibtexEntry():
     f.close()
 
     #Takes all the elements in adjacencyList that have both entries as one of the articles in the file, and writes each pair into a CSV file.
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\gyrorecsCSV.csv', 'w', encoding="utf8") as g:
+    with open('./gyrorecsCSV.csv', 'w', encoding="utf8") as g:
         for element in adjacencyList:
             if element[2] == True:
                 g.write(element[0] + ", " + element[1] + "\n")
@@ -793,7 +793,7 @@ def createAllArcsOfGraph(edge_pairs,topPoint, ColorStyleIndicator,ListOfPointsTo
 
     numOfSpaces = 512
     print(iteration)
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\OneLineVTK3-Iteration' + str(iteration) + '.vtk', "w", encoding="utf8") as f:
+    with open('./OneLineVTK3-Iteration' + str(iteration) + '.vtk', "w", encoding="utf8") as f:
         #Header
         f.write("# vtk DataFile Version 3.0\n")
         f.write("fieldline polygons\n")
@@ -1165,12 +1165,12 @@ def createArc2(f, phi_1, phi_2, theta_1, theta_2, numOfSpaces):
 
 def createVTKFilesPointsArcs(articlesDict, adjacencyList, adjacencyListNumTimesReferenced, generatedSphericalCoords, iteration):
 
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\TrueAdjacencyList.txt', "w", encoding="utf8") as b:
+    with open('./TrueAdjacencyList.txt', "w", encoding="utf8") as b:
         for element in adjacencyList:
             if element[2] == True:
                 b.write(element[0] + " " + element[1] + "\n")
         
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\GeneratedPoints3_iteration' + str(iteration) + '.txt', "w", encoding="utf8") as a:
+    with open('./GeneratedPoints3_iteration' + str(iteration) + '.txt', "w", encoding="utf8") as a:
         #print(generatedSphericalCoords)        
         for element in generatedSphericalCoords:
             phi = float(generatedSphericalCoords[element][0])
@@ -1320,8 +1320,8 @@ def createVTKSpheres(sphericalCoordList,numSides,ColorStyleIndicator,iteration):
     r = 0.015
     listLength = len(sphericalCoordList)
     n=numSides
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\SmallSpherePoints_iteration' + str(iteration) + '.vtk', "w", encoding="utf8") as f:
-        with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\GeneratedPoints3_iteration' + str(iteration) + '.txt', "w", encoding="utf8") as h:
+    with open('./SmallSpherePoints_iteration' + str(iteration) + '.vtk', "w", encoding="utf8") as f:
+        with open('./GeneratedPoints3_iteration' + str(iteration) + '.txt', "w", encoding="utf8") as h:
 
             #Header
             f.write("# vtk DataFile Version 3.0\n")

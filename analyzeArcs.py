@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
-f = open("arcsizeEdges.txt")	# values from calcDisp
+f = open("./arcsizeEdges.txt")	# values from calcDisp
 lines = f.readlines()
 f.close()
 

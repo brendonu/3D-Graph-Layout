@@ -18,7 +18,7 @@ def createAllArcsOfGraph(edge_pairs,topPoint, ColorStyleIndicator,ListOfPointsTo
 
     numOfSpaces = 512
 
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\OneLineVTK3.vtk', "w", encoding="utf8") as f:
+    with open('./OneLineVTK3.vtk', "w", encoding="utf8") as f:
         #Header
         f.write("# vtk DataFile Version 3.0\n")
         f.write("fieldline polygons\n")
@@ -373,16 +373,16 @@ def createArc2(f, phi_1, phi_2, theta_1, theta_2, numOfSpaces):
 
 
 def createVTKFilesPointsArcs():
-    articlesDict, adjacencyList, adjacencyListNumTimesReferenced, generatedSphericalCoords = parseBibtexEntry()
+    adjacencyList, adjacencyListNumTimesReferenced, generatedSphericalCoords = parseBibtexEntry()
     print("done")
     #print(generatedSphericalCoords)
 
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\TrueAdjacencyList.txt', "w", encoding="utf8") as b:
+    with open('./TrueAdjacencyList.txt', "w", encoding="utf8") as b:
         for element in adjacencyList:
             if element[2] == True:
                 b.write(element[0] + " " + element[1] + "\n")
 
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\GeneratedPoints3.txt', "w", encoding="utf8") as a:
+    with open('./GeneratedPoints3.txt', "w", encoding="utf8") as a:
         #print(generatedSphericalCoords)
         for element in generatedSphericalCoords:
             phi = generatedSphericalCoords[element][0]

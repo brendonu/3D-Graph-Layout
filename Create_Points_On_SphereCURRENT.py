@@ -3,7 +3,7 @@ import math
 
 debug = False
 
-adjacencyList, numreferenced = parseBibtexEntry()[1], parseBibtexEntry()[2]
+adjacencyList, numreferenced = parseBibtexEntry()[0], parseBibtexEntry()[1]
 
 
 #counter = 0
@@ -35,8 +35,8 @@ def createVTKSpheres(sphericalCoordList,numSides,ColorStyleIndicator):
     r = 0.015
     listLength = len(sphericalCoordList)
     n=numSides
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\SmallSpherePoints.vtk', "w", encoding="utf8") as f:
-        with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\GeneratedPoints2.txt', "w", encoding="utf8") as h:
+    with open('./SmallSpherePoints.vtk', "w", encoding="utf8") as f:
+        with open('./GeneratedPoints2.txt', "w", encoding="utf8") as h:
 
             #Header
             f.write("# vtk DataFile Version 3.0\n")
@@ -123,9 +123,9 @@ def writePointsForOneSphere(phi,theta,r,f,n,h):
 if __name__ == '__main__':
     #print(len(Parser.parseBibtexEntry()))
 
-    articlesDict, adjacencyList, adjacencyListNumTimesReferenced, generatedSphericalCoords = parseBibtexEntry()
+    adjacencyList, adjacencyListNumTimesReferenced, generatedSphericalCoords = parseBibtexEntry()
 
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\GeneratedPoints.txt', "w", encoding="utf8") as f:
+    with open('./GeneratedPoints.txt', "w", encoding="utf8") as f:
         CoordList = []
         for element in generatedSphericalCoords:
             CoordList.append(generatedSphericalCoords[element])

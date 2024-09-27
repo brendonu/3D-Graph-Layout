@@ -13,307 +13,45 @@ attractiveForceStrength = 1000
 # Parse a single bibtex citation, store each entry in the citation as a key-value pair.
 # Store references as a numbered dictionary instead of as one large string.
 def parseBibtexEntry():
-
-    #Dictionary to store each entry in the bibtex as a separate key-value pair.
-    articlesDict = {}
-
-    #dictionary for single entry
-    articleDict = {}
-
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\gyrorecs.bib.orig', encoding="utf8") as f:
-        with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\new-gyrorecs.bib.orig', 'w', encoding="utf8") as g:
-            g.write("\n")
-            for line in f.readlines()[1:-1]:
-                strlist = []
-                if len(line) > 1:
-                    indicator = False
-                    for i in range(len(line)-1):
-                        if indicator == False:
-                            if line[i] != "{":
-                                if line[i] != "}":
-                                    strlist.append(line[i])
-                                elif line[i+1] != "}":
-                                    strlist.append(line[i])
-                                else:
-                                    strlist.append(line[i])
-                                    indicator = True
-                                #strlist.append(line[i])
-                            elif line[i+1] != "{":
-                                strlist.append(line[i])
-                            else:
-                                strlist.append(line[i])
-                                indicator = True
-                        else:
-                            indicator = False
-
-                strconcat = ""
-                for i in range(len(strlist)):
-                    strconcat += strlist[i]
-                
-                g.write(strconcat + "\n")
-
-            g.write("}\n")
-            g.write("\n\n\n")
-                                
-
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\new-gyrorecs.bib.orig', encoding="utf8") as f:
-        
-        #Indicators for what is being entered/updated right now.
-        pubType = ""
-        nameIndicator = False
-        fieldIndicator = False
-        fieldValueIndicator = False
-
-        #Initial values
-        stack = []
-        adjacencyList = []
-        #Current number of brackets
-        currVal = 0
-        #Number of brackets at the time of the previous letter
-        prevVal = 0
-        #Name of the article
-        articleName = ""
-        #Indicator for whether the reader is on the name (first element of articleDict) or on something else
-        counter = 0
-        #The field to be entered as a key in the articleDict
-        field = ""
-        #The corresponding value that becomes a value in the articleDict
-        fieldValue = ""
-
-        #Loop over each letter in the whole txt or bib file
-        for line in f.readlines()[1:-1]:
-            for element in line[0:len(line):1]:
-
-                #If new bracket opens, add one to currVal and update prevVal
-                if element == "{":
-                    stack.append("{")
-                    prevVal = currVal
-                    currVal = len(stack)
-                #If bracked closes, subtract one from currVal and update prevVal
-                elif element == "}":
-                    stack.pop()
-                    prevVal = currVal
-                    currVal = len(stack)
-                #If neither, just update prevVal
-                else:
-                    prevVal = currVal
-                
-                #For the first time we encounter a comma, the stuff before the comma is the article name.
-                if (element == "," and prevVal == 1 and currVal == 1 and counter == 0):
-                    nameIndicator = False
-                    articleName = articleName.strip()
-                    counter += 1
-                    fieldIndicator = True
-
-                #After the first time encountering a comma, we only obtain commas if we have defined both the field
-                #and the field value for a particular field. In this step we add the field:fieldValues as a key-value
-                #pair.
-                if (element == "," and prevVal == 1 and currVal == 1 and counter == 1):
-                    fieldValueIndicator = False
-                    fieldValue = fieldValue.strip()
-                    fieldValue = fieldValue[0:len(fieldValue)-1]
-                    fieldValue = fieldValue.strip()
-
-                    #Separate out the references into another dictionary and add on to the adjacencyList with pairs of nodes.
-                    if field == "Cited-References":
-                        fieldValue, adjacencyList = parseReferences(articleDict["DOI"],fieldValue,adjacencyList)
-                    #Add name field. Also, pre-add the DOI field where "999" is a placeholder for "no DOI yet".
-                    if len(articleDict) == 0:
-                        articleDict["Name"] = articleName
-                        articleDict["DOI"] = "999"
-                    else:
-                        articleDict[field] = fieldValue
-                    articleDict["pubType"] = pubType
-                    field = ""
-                    fieldValue = ""
-                    fieldIndicator = True
-
-                #Identifies the end of a field by an equals sign, and strips/cleans the field
-                if (element == "=" and prevVal == 1 and currVal == 1):
-                    fieldIndicator = False
-                    field = field.strip()
-                    field = field[2:len(field)]
-                
-                #when the name indicator is on, the article name is updated for every new letter.
-                if nameIndicator:
-                    articleName += element
-
-                #When the field value indictor is on, the field value is updated for every new letter.
-                if fieldValueIndicator:
-                    fieldValue += element
-
-                #When the field indicator is on, the field string is updated for every new letter.
-                if fieldIndicator:
-                    field += element
-                
-                #Detects the start of the "name" field.
-                if (prevVal == 0 and currVal == 1 and counter == 0):
-                    
-                    endChar = line.find("{")
-                    pubType = line[1:endChar]
-
-                    #if line[0:13] == "@inproceedings":
-                    #    articleIndicator = 0
-                    nameIndicator = True
-
-                #Detects the start of every field value entry other than the name field.
-                if (prevVal == 1 and currVal == 2):
-                    fieldValueIndicator = True
-                    
-
-                #Detects when the entire citation for a single article entry is complete. Adds the accumulated
-                #articleDict to articlesDict, then resets articleDict. Process repeats for each complete bibtex entry
-                #in the file.
-                if (prevVal == 1 and currVal == 0):
-                    articlesDict[articleDict["Name"]] = articleDict
-                    nameIndicator = False
-                    fieldIndicator = False
-                    fieldValueIndicator = False
-
-                    
-                    stack = []
-                    currVal = 0
-                    prevVal = 0
-                    articleName = ""
-                    counter = 0
-                    field = ""
-                    fieldValue = ""
-                    articleDict = {}
-        f.close()
-
-        #Starts out by assuming that every element in adjacency List has both pairs as articles within the file.
-        for element in adjacencyList:
-            element.append(True)
-            #print(element)
-
-        #List of the doi's of the articles within the file that actually have doi's.
-        doiList = []
-
-        #Goes through each element in articlesDict. If that element has a valid DOI, it adds that DOI to doiList.
-        try:
-            for element in articlesDict:
-                if articlesDict[element]["DOI"] != "999":
-                    doiString = articlesDict[element]["DOI"]
-                    elementDOI = doiString[0:len(doiString)]
-                    doiList.append(elementDOI)
-
-        except:
-            print("EXCEPTION")
-            print(articlesDict[element])
-        
-        #for element in doiList:
-        #    print(element + "\n")
-
-
-        #Goes through each pair in adjacencyList, and adds a tag that indicates whether the second entry in the pair is one of the articles in the file.
-        for pair in adjacencyList:
-            answer = pair[1]
-            indoiList = False
-            
-            for element in doiList:
-                if element == answer:
-                    indoiList = True
-                
-            if indoiList == False:
-                pair[2] = False
-    f.close()
-
-    #Takes all the elements in adjacencyList that have both entries as one of the articles in the file, and writes each pair into a CSV file.
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\gyrorecsCSV.csv', 'w', encoding="utf8") as g:
-        for element in adjacencyList:
-            if element[2] == True:
-                g.write(element[0] + ", " + element[1] + "\n")
-    g.close()
-
-
-    adjacencyListNumTimesReferenced = []
-
-    adjacencyList.sort(key=sortKey)
-
-
-
-    #Calculates the number of nodes that will come out of each element in the adjacencyList
-    adjacencyListNumTimesReferenced = []
-
-    prevDoi = "999"
-    firstTime = True
-
-    for element in adjacencyList:
-        if element[2] == True:
-            if prevDoi != element[1]:
-                if firstTime == False:
-                    adjacencyListNumTimesReferenced.append([prevDoi,counter])
-                firstTime = False
-                counter = 1
-                prevDoi = element[1]
-            else:
-                counter += 1 
-        
-    adjacencyListNumTimesReferenced.append([prevDoi,counter])
-
-    for article in articlesDict:
-        doi = articlesDict[article]["DOI"]
-        appears = False
-        for element in adjacencyListNumTimesReferenced:
-            if element[0] == doi or doi == "999":
-                    appears = True
-        if not appears:
-            adjacencyListNumTimesReferenced.append([doi,0])
-
-
-    adjacencyList.sort(key=sortKey2)
-
-
-
-    adjacencyListNumOfReferences = []
-
-    prevDoi = "999"
-    firstTime = True
-
-    for element in adjacencyList:
-        if element[2] == True:
-            if prevDoi != element[0]:
-                if firstTime == False:
-                    adjacencyListNumOfReferences.append([prevDoi,counter])
-                firstTime = False
-                counter = 1
-                prevDoi = element[0]
-            else:
-                counter += 1 
-        
-    adjacencyListNumOfReferences.append([prevDoi,counter])
-
-    for article in articlesDict:
-        doi = articlesDict[article]["DOI"]
-        appears = False
-        for element in adjacencyListNumOfReferences:
-            if element[1] == doi or doi == "999":
-                    appears = True
-        if not appears:
-            adjacencyListNumOfReferences.append([doi,0])
-
+    adjacency_list = []
     
+    with open('Testing/list_1_graphs (1).lst', 'r') as f:
+        for line in f:
+            if not line or ':' not in line:
+                continue
+            # Splitting line by ":" to separate node from its connections
+            node, connections = line.split(":")
+            node = node.strip()
+            # Splitting the connections and removing any leading/trailing whitespace
+            connected_nodes = connections.strip().split()
 
-    adjacencyList.sort(key=sortKey)
+            # Assuming the previous code expected a "flag" (e.g., True/False or some other data)
+            # you could add a default value here, or infer it from the data
+            flag = True  # or some logic to determine the flag value
 
-    #Sorts the number-of-references list from highest number of references to lowest number of references
-    adjacencyListNumTimesReferenced.sort(key=sortKey, reverse=True)
-    adjacencyListNumOfReferences.sort(key=sortKey, reverse=True)
-    print(len(adjacencyList))
-    generatedSphericalCoords = generateCoords3(articlesDict, adjacencyListNumTimesReferenced, adjacencyList)
-    if debug:
-        print(generatedSphericalCoords)
-    
-    return articlesDict, adjacencyList, adjacencyListNumTimesReferenced, generatedSphericalCoords
+            # Adding the connections to the adjacency list
+            for conn in connected_nodes:
+                adjacency_list.append([node, conn, flag])
 
+    # Now process the adjacency list as before
+    node_references_count = {}
+    for node, neighbor, _ in adjacency_list:
+        if neighbor not in node_references_count:
+            node_references_count[neighbor] = 0
+        node_references_count[neighbor] += 1
 
+    adjacencyListNumTimesReferenced = sorted(node_references_count.items(), key=lambda x: x[1], reverse=True)
+
+    generated_spherical_coords = generateCoords(adjacencyListNumTimesReferenced, adjacency_list)
+
+    return adjacency_list, adjacencyListNumTimesReferenced, generated_spherical_coords
 
 
 #Starting from the Middle and Moving Outwards
-def generateCoordsMiddle(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoordsMiddle( adjacencyListNumTimesReferenced, adjacencyList):
     coordsDict = {}
 
-    coordsDict = generateCoords(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoords(adjacencyListNumTimesReferenced, adjacencyList)
 
     #print(coordsDict)
     counter = 0
@@ -342,10 +80,10 @@ def generateCoordsMiddle(articlesDict, adjacencyListNumTimesReferenced, adjacenc
     return coordsDict
 
 #Structured Arrangement of Points
-def generateCoordsPrimePrime(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoordsPrimePrime(adjacencyListNumTimesReferenced, adjacencyList):
     coordsDict = {}
 
-    coordsDict = generateCoords(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoords(adjacencyListNumTimesReferenced, adjacencyList)
 
     #print(coordsDict)
     counter = 0
@@ -375,20 +113,20 @@ def generateCoordsPrimePrime(articlesDict, adjacencyListNumTimesReferenced, adja
     return coordsDict
 
 
-def generateCoordsTriplePrime(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoordsTriplePrime(adjacencyListNumTimesReferenced, adjacencyList):
     coordsDict = {}
 
-    coordsDict = generateCoords(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoords(adjacencyListNumTimesReferenced, adjacencyList)
     counter = 0
     columns = math.floor(math.sqrt(len(coordsDict)))+1
 
     coordsList = []
 
 #Random Arrangement of Points
-def generateCoordsPrime(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoordsPrime(adjacencyListNumTimesReferenced, adjacencyList):
     coordsDict = {}
 
-    coordsDict = generateCoords(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoords(adjacencyListNumTimesReferenced, adjacencyList)
     counter = 0
     columns = math.floor(math.sqrt(len(coordsDict)))+1
 
@@ -522,7 +260,7 @@ def distFunc(point1,point2):
 
 
 
-def generateCoords(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoords(adjacencyListNumTimesReferenced, adjacencyList):
     coordsDict = {}
 
     referencesMostReferenced = []
@@ -673,7 +411,7 @@ def generateCoords(articlesDict, adjacencyListNumTimesReferenced, adjacencyList)
 
     return coordsDict
 
-def generateCoords2(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoords2(adjacencyListNumTimesReferenced, adjacencyList):
     
     adjacencyListInGraph = []
 
@@ -682,7 +420,7 @@ def generateCoords2(articlesDict, adjacencyListNumTimesReferenced, adjacencyList
             adjacencyListInGraph.append(entry)
 
 
-    coordsDict = generateCoords(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoords(adjacencyListNumTimesReferenced, adjacencyList)
 
     for element in coordsDict:
 
@@ -778,7 +516,7 @@ def generateCoords2(articlesDict, adjacencyListNumTimesReferenced, adjacencyList
     
     return coordsDict
 
-def generateCoords3(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoords3(adjacencyListNumTimesReferenced, adjacencyList):
     
     adjacencyListInGraph = []
 
@@ -787,7 +525,7 @@ def generateCoords3(articlesDict, adjacencyListNumTimesReferenced, adjacencyList
             adjacencyListInGraph.append(entry)
 
 
-    coordsDict = generateCoords(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoords(adjacencyListNumTimesReferenced, adjacencyList)
 
     for element in coordsDict:
 
@@ -889,7 +627,7 @@ def generateCoords3(articlesDict, adjacencyListNumTimesReferenced, adjacencyList
 
     return coordsDict
 
-def generateCoords4(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def generateCoords4(adjacencyListNumTimesReferenced, adjacencyList):
     
     adjacencyListInGraph = []
 
@@ -898,7 +636,7 @@ def generateCoords4(articlesDict, adjacencyListNumTimesReferenced, adjacencyList
             adjacencyListInGraph.append(entry)
 
 
-    coordsDict = generateCoords(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoords(adjacencyListNumTimesReferenced, adjacencyList)
 
     for element in coordsDict:
 
@@ -1120,9 +858,9 @@ def calcActualDispVec(v_1,v_2):
 
 
 
-def terminalPointsOffSphere(articlesDict, adjacencyListNumTimesReferenced, adjacencyList):
+def terminalPointsOffSphere(adjacencyListNumTimesReferenced, adjacencyList):
 
-    coordsDict = generateCoordsPrimePrime(articlesDict,adjacencyListNumTimesReferenced, adjacencyList)
+    coordsDict = generateCoordsPrimePrime(adjacencyListNumTimesReferenced, adjacencyList)
 
     adjacencyList.sort(key=sortKey2)
 
@@ -1144,14 +882,6 @@ def terminalPointsOffSphere(articlesDict, adjacencyListNumTimesReferenced, adjac
         
     adjacencyListNumOfReferences.append([prevDoi,counter])
 
-    for article in articlesDict:
-        doi = articlesDict[article]["DOI"]
-        appears = False
-        for element in adjacencyListNumOfReferences:
-            if element[1] == doi or doi == "999":
-                    appears = True
-        if not appears:
-            adjacencyListNumOfReferences.append([doi,0])
 
     
 
@@ -1260,7 +990,7 @@ def terminalPointsOffSphere(articlesDict, adjacencyListNumTimesReferenced, adjac
         g.write("DATASET POLYDATA\n")
         g.write("POINTS " + str(listLength*(n*(n-1)+2)) + " float64\n")
 
-        with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\GeneratedOffSphereCoords.txt', 'w', encoding="utf8") as h:
+        with open('./GeneratedOffSphereCoords.txt', 'w', encoding="utf8") as h:
             for element in offSphereCoordsDict:
 
                 x = offSphereCoordsDict[element][0]
@@ -1316,7 +1046,7 @@ def terminalPointsOffSphere(articlesDict, adjacencyListNumTimesReferenced, adjac
 
     numOfSpaces = 64
 
-    with open('C:\\Users\\aguha\\Documents\\1-PPPL-Research\\1-PPPL-Research\\SupportFiles\\OffSphereLines.vtk', "w", encoding="utf8") as h:
+    with open('./OffSphereLines.vtk', "w", encoding="utf8") as h:
         h.write("# vtk DataFile Version 3.0\n")
         h.write("fieldline polygons\n")
         h.write("ASCII\n")
