@@ -15,7 +15,7 @@ attractiveForceStrength = 1000
 def parseBibtexEntry():
     adjacency_list = []
     
-    with open('Testing/list_1_graphs (1).lst', 'r') as f:
+    with open('non_hamiltonian/list_29_graphs.lst', 'r') as f:
         for line in f:
             if not line or ':' not in line:
                 continue
