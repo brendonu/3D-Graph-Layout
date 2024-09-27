@@ -10,30 +10,24 @@ attractiveForce = 0
 repulsiveForceStrength = 1000
 attractiveForceStrength = 1000
 
-# Parse a single bibtex citation, store each entry in the citation as a key-value pair.
-# Store references as a numbered dictionary instead of as one large string.
+# Parse a graph's adjacency list from a file
 def parseBibtexEntry():
     adjacency_list = []
-    
-    with open('non_hamiltonian/list_29_graphs.lst', 'r') as f:
+    # Open the file and read the lines
+    with open('non_hamiltonian/list_38_graphs.lst', 'r') as f:
         for line in f:
             if not line or ':' not in line:
                 continue
-            # Splitting line by ":" to separate node from its connections
-            node, connections = line.split(":")
+            # Splitting line by ":" to separate node from its neighbors
+            node, neighbors = line.split(":")
+            # Removing any whitespace
             node = node.strip()
-            # Splitting the connections and removing any leading/trailing whitespace
-            connected_nodes = connections.strip().split()
-
-            # Assuming the previous code expected a "flag" (e.g., True/False or some other data)
-            # you could add a default value here, or infer it from the data
-            flag = True  # or some logic to determine the flag value
-
+            neighbor_nodes = neighbors.strip().split()
             # Adding the connections to the adjacency list
-            for conn in connected_nodes:
-                adjacency_list.append([node, conn, flag])
+            for conn in neighbor_nodes:
+                adjacency_list.append([node, conn, True])
 
-    # Now process the adjacency list as before
+    # Calculate the number of times each node is referenced
     node_references_count = {}
     for node, neighbor, _ in adjacency_list:
         if neighbor not in node_references_count:
